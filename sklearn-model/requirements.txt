@@ -1,0 +1,14 @@
+# sklearn-model/requirements.txt
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+scikit-learn==1.3.2
+pandas==2.1.4
+numpy==1.24.4
+mlflow
+python-dotenv==1.0.0
+psycopg2-binary==2.9.9
+boto3
+requests  # <-- AÑADIR para descargar Titanic
+pytest==7.4.3
+pytest-cov==4.1.0
