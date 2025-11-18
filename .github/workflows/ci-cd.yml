@@ -53,6 +53,8 @@ jobs:
           pytest tests/ -v --cov=app --cov-report=term-missing
   
   # === JOB 3: Tests unitarios - Sklearn Model ===
+# === JOB 3: Tests unitarios - Sklearn Model ===
+  # === JOB 3: Tests unitarios - Sklearn Model ===
   test-sklearn-model:
     runs-on: ubuntu-latest
     steps:
@@ -67,6 +69,8 @@ jobs:
         run: |
           cd sklearn-model
           pip install -r requirements.txt
+          # AÑADIDO: Instalar versiones específicas para tests
+          pip install pytest==7.4.3 pytest-cov==4.1.0 httpx==0.25.2
       
       - name: Run tests
         run: |
@@ -88,6 +92,8 @@ jobs:
         run: |
           cd cnn-image
           pip install -r requirements.txt
+          # AÑADIDO: Instalar versiones específicas para tests
+          pip install pytest==7.4.3 pytest-cov==4.1.0 httpx==0.25.2 Pillow==10.1.0
       
       - name: Run tests
         run: |
