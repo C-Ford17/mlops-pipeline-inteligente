@@ -1,0 +1,27 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore): ]]; then
+            echo "❌ PR title must start with: feat:, fix:, docs:, style:, refactor:, test:, or chore:"
+            exit 1
+          fi
+          echo "✅ PR title is valid"
+      
+      - name: Check branch naming
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          if [[ ! "$BRANCH" =~ ^(feature|fix|hotfix|docs|refactor)/ ]]; then
+            echo "⚠️ Branch should follow pattern: feature/, fix/, hotfix/, docs/, or refactor/"
+          fi
