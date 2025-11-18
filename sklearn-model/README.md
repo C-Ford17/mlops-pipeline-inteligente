@@ -93,30 +93,3 @@ mlops-pipeline-inteligente/
 
 Christian Gomez - Proyecto Final MLOps
 "@ | Out-File -FilePath README.md -Encoding utf8
-
-# Crear .env.example
-Write-Host "📝 Creando .env.example..." -ForegroundColor Yellow
-@"
-# Variables de entorno para MLOps Pipeline
-
-# Google Gemini API
-GOOGLE_API_KEY=your_api_key_here
-GOOGLE_MODEL=gemini-2.5-flash
-
-# MLflow
-MLFLOW_TRACKING_URI=http://mlflow-server:5000
-MLFLOW_S3_ENDPOINT_URL=http://minio:9000
-
-# MinIO
-AWS_ACCESS_KEY_ID=minioadmin
-AWS_SECRET_ACCESS_KEY=minioadmin
-AWS_DEFAULT_REGION=us-east-1
-"@ | Out-File -FilePath infra/.env.example -Encoding utf8
-
-# Commit inicial
-Write-Host "`n✅ Commit 1: Initial commit" -ForegroundColor Green
-git add .gitignore README.md infra/.env.example
-git commit -m "chore: initial commit with project structure"
-
-# Crear branch develop
-git checkout -b develop

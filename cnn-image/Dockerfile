@@ -16,8 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY app/ ./app/
 COPY filters/ ./filters/
-# === COPIAR DATOS AL BUILD ===
-COPY data/raw/cifar-10-batches-py/ ./data/raw/cifar-10-batches-py/
 
 # ELIMINAR ESTA LÍNEA (ya no es necesaria):
 # COPY app/model.py ./

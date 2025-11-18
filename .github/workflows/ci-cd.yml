@@ -46,7 +46,6 @@ jobs:
         run: |
           cd llm-connector
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
       
       - name: Run tests
         run: |
@@ -68,7 +67,6 @@ jobs:
         run: |
           cd sklearn-model
           pip install -r requirements.txt
-          pip install pytest pytest-cov httpx
       
       - name: Run tests
         run: |
@@ -90,7 +88,6 @@ jobs:
         run: |
           cd cnn-image
           pip install -r requirements.txt
-          pip install pytest pytest-cov httpx Pillow
       
       - name: Run tests
         run: |
@@ -112,7 +109,6 @@ jobs:
         run: |
           cd gradio-frontend
           pip install -r requirements.txt
-          pip install pytest pytest-cov
       
       - name: Run tests
         run: |
