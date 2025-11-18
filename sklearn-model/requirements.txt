@@ -12,3 +12,4 @@ boto3
 requests  # <-- AÑADIR para descargar Titanic
 pytest==7.4.3
 pytest-cov==4.1.0
+httpx

@@ -11,3 +11,5 @@ python-multipart==0.0.6  # <-- AÑADE ESTA LÍNEA
 boto3
 pytest==7.4.3
 pytest-cov==4.1.0
+httpx
+Pillow
