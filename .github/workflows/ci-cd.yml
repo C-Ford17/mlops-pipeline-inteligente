@@ -1,0 +1,171 @@
+name: MLOps Pipeline CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # === JOB 1: Linting y Code Quality ===
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install linting tools
+        run: |
+          pip install flake8 black isort
+      
+      - name: Run flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
+      - name: Check code formatting with black
+        run: black --check --diff .
+        continue-on-error: true
+  
+  # === JOB 2: Tests unitarios - LLM Connector ===
+  test-llm-connector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          cd llm-connector
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      
+      - name: Run tests
+        run: |
+          cd llm-connector
+          pytest tests/ -v --cov=app --cov-report=term-missing
+  
+  # === JOB 3: Tests unitarios - Sklearn Model ===
+  test-sklearn-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          cd sklearn-model
+          pip install -r requirements.txt
+          pip install pytest pytest-cov httpx
+      
+      - name: Run tests
+        run: |
+          cd sklearn-model
+          pytest tests/ -v --cov=app --cov-report=term-missing
+  
+  # === JOB 4: Tests unitarios - CNN Image ===
+  test-cnn-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          cd cnn-image
+          pip install -r requirements.txt
+          pip install pytest pytest-cov httpx Pillow
+      
+      - name: Run tests
+        run: |
+          cd cnn-image
+          pytest tests/ -v --cov=app --cov-report=term-missing
+  
+  # === JOB 5: Tests unitarios - Gradio Frontend ===
+  test-gradio-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          cd gradio-frontend
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: Run tests
+        run: |
+          cd gradio-frontend
+          pytest tests/ -v
+  
+  # === JOB 6: Build Docker Images ===
+  build-images:
+    needs: [lint, test-llm-connector, test-sklearn-model, test-cnn-image, test-gradio-frontend]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build llm-connector image
+        run: docker build -t llm-connector:latest llm-connector/
+      
+      - name: Build sklearn-model image
+        run: docker build -t sklearn-model:latest sklearn-model/
+      
+      - name: Build cnn-image image
+        run: docker build -t cnn-image:latest cnn-image/
+      
+      - name: Build gradio-frontend image
+        run: docker build -t gradio-frontend:latest gradio-frontend/
+      
+      - name: Build mlflow-server image
+        run: docker build -t mlflow-server:latest mlflow-server/
+  
+  # === JOB 7: Validación de estructura ===
+  validate-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Validate project structure
+        run: |
+          echo "Validating project structure..."
+          
+          # Verificar que existan los directorios principales
+          test -d llm-connector || (echo "Missing llm-connector/" && exit 1)
+          test -d sklearn-model || (echo "Missing sklearn-model/" && exit 1)
+          test -d cnn-image || (echo "Missing cnn-image/" && exit 1)
+          test -d gradio-frontend || (echo "Missing gradio-frontend/" && exit 1)
+          test -d infra || (echo "Missing infra/" && exit 1)
+          
+          # Verificar archivos críticos
+          test -f infra/docker-compose.yml || (echo "Missing docker-compose.yml" && exit 1)
+          test -f infra/swarm-stack.yml || (echo "Missing swarm-stack.yml" && exit 1)
+          test -f README.md || (echo "Missing README.md" && exit 1)
+          
+          echo "✅ Project structure is valid"
