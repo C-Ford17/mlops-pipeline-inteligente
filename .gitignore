@@ -1,0 +1,40 @@
+__pycache__/
+*.py[cod]
+*`$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MLflow
+mlruns/
+mlflow.db
+mlartifacts/
+
+# Datos grandes
+cnn-image/data/raw/cifar-10-batches-py/
+*.tar.gz
+*.pkl
+*.h5
+
+# Docker
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Models (se guardan en MLflow)
+*/models/*.pkl
+*/models/*.h5
