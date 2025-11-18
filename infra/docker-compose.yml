@@ -1,0 +1,160 @@
+services:
+  # --- MINIO (S3 para artifacts) - INICIA PRIMERO ---
+  minio:
+    image: minio/minio:latest
+    container_name: mlops-minio
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - mlops-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # --- MLflow Tracking Server ---
+  mlflow-server:
+    build:  # <-- CAMBIO: Usar build en lugar de image
+      context: ../mlflow-server
+      dockerfile: Dockerfile
+    container_name: mlops-mlflow-server
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_DEFAULT_REGION=us-east-1
+      - MLFLOW_DISABLE_HOST_HEADER_VALIDATION=true
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks:
+      - mlops-network
+    command:
+      - sh
+      - -c
+      - |
+        echo "Starting MLflow server with SQLite backend..."
+        sleep 5
+        # Crear directorio para SQLite
+        mkdir -p /mlflow-data
+        cd /mlflow-data
+        # Iniciar MLflow con TODOS los parámetros en una línea
+        mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root s3://mlflow/artifacts --allowed-hosts '*'
+
+  # --- LLM Connector ---
+  llm-connector:
+    build:
+      context: ../llm-connector
+      dockerfile: Dockerfile
+    container_name: mlops-llm-connector
+    environment:
+      - LLM_PROVIDER=google
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GOOGLE_MODEL=${GOOGLE_MODEL}
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    ports:
+      - "8000:8000"
+    networks:
+      - mlops-network
+    depends_on:
+      - mlflow-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # --- ML Service (Titanic) ---
+  sklearn-model:
+    build:
+      context: ../sklearn-model
+      dockerfile: Dockerfile
+    container_name: mlops-sklearn-model
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../sklearn-model/data:/app/data
+      - ../sklearn-model/models:/app/models
+    networks:
+      - mlops-network
+    depends_on:
+      - mlflow-server
+    # AÑADIR: Usuario correcto para volúmenes
+    user: "1000:1000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+  # --- CNN Service (CIFAR-10) ---
+  cnn-image:
+    build:
+      context: ../cnn-image
+      dockerfile: Dockerfile
+    container_name: mlops-cnn-image
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    ports:
+      - "8002:8000"
+    volumes:
+      - ../cnn-image/data:/app/data
+      - ../cnn-image/models:/app/models
+    networks:
+      - mlops-network
+    depends_on:
+      - mlflow-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # --- Gradio Frontend ---
+  gradio-frontend:
+    build:
+      context: ../gradio-frontend
+      dockerfile: Dockerfile
+    container_name: mlops-gradio-frontend
+    environment:
+      - LLM_CONNECTOR_URL=http://llm-connector:8000
+      - SKLEARN_MODEL_URL=http://sklearn-model:8000
+      - CNN_IMAGE_URL=http://cnn-image:8000
+      - GRADIO_SERVER_PORT=7860
+    ports:
+      - "7860:7860"
+    networks:
+      - mlops-network
+    depends_on:
+      - llm-connector
+      - sklearn-model
+      - cnn-image
+
+networks:
+  mlops-network:
+    driver: bridge
+
+volumes:
+  minio-data:
