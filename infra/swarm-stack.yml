@@ -1,0 +1,174 @@
+services:
+  # --- MINIO (S3 para artifacts) ---
+  minio:
+    image: minio/minio:latest
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports:
+      - target: 9000
+        published: 9000
+        protocol: tcp
+      - target: 9001
+        published: 9001
+        protocol: tcp
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - mlops-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any  # <-- CAMBIO: "any" reinicia SIEMPRE
+        delay: 5s
+        max_attempts: 0  # <-- 0 = intentos infinitos
+
+  # --- MLflow Tracking Server ---
+  mlflow-server:
+    image: mlflow-server:latest  # Usar registry local
+    ports:
+      - target: 5000
+        published: 5000
+        protocol: tcp
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_DEFAULT_REGION=us-east-1
+    networks:
+      - mlops-network
+    command:
+      - sh
+      - -c
+      - |
+        echo "Starting MLflow server..."
+        sleep 10
+        mkdir -p /mlflow-data
+        cd /mlflow-data
+        mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root s3://mlflow/artifacts --allowed-hosts '*'
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any  # <-- CAMBIO: "any" reinicia SIEMPRE
+        delay: 5s
+        max_attempts: 0  # <-- 0 = intentos infinitos
+
+  # --- LLM Connector ---
+  llm-connector:
+    image: llm-connector:latest
+    environment:
+      - LLM_PROVIDER=google
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GOOGLE_MODEL=${GOOGLE_MODEL}
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    ports:
+      - target: 8000
+        published: 8000
+        protocol: tcp
+    networks:
+      - mlops-network
+    deploy:
+      replicas: 2  # Escalar LLM
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any  # <-- CAMBIO: "any" reinicia SIEMPRE
+        delay: 5s
+        max_attempts: 0  # <-- 0 = intentos infinitos
+
+  # --- ML Service (Titanic) ---
+  sklearn-model:
+    image: sklearn-model:latest
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    ports:
+      - target: 8000
+        published: 8001
+        protocol: tcp
+    volumes:
+      # Solo models/ - data/ se descarga automáticamente
+      - ../sklearn-model/models:/app/models
+    networks:
+      - mlops-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any  # <-- CAMBIO: "any" reinicia SIEMPRE
+        delay: 5s
+        max_attempts: 0  # <-- 0 = intentos infinitos
+
+  # --- CNN Service (CIFAR-10) ---
+  cnn-image:
+    image: cnn-image:latest
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+    ports:
+      - target: 8000
+        published: 8002
+        protocol: tcp
+    volumes:
+     # Solo models/ - data/ se descarga automáticamente
+      - ../cnn-image/models:/app/models
+    networks:
+      - mlops-network
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+      restart_policy:
+        condition: any  # <-- CAMBIO: "any" reinicia SIEMPRE
+        delay: 5s
+        max_attempts: 0  # <-- 0 = intentos infinitos
+
+  # --- Gradio Frontend ---
+  gradio-frontend:
+    image: gradio-frontend:latest
+    environment:
+      - LLM_CONNECTOR_URL=http://llm-connector:8000
+      - SKLEARN_MODEL_URL=http://sklearn-model:8000
+      - CNN_IMAGE_URL=http://cnn-image:8000
+      - GRADIO_SERVER_PORT=7860
+    ports:
+      - target: 7860
+        published: 7860
+        protocol: tcp
+    networks:
+      - mlops-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any  # <-- CAMBIO: "any" reinicia SIEMPRE
+        delay: 5s
+        max_attempts: 0  # <-- 0 = intentos infinitos
+
+networks:
+  mlops-network:
+    driver: overlay
+    attachable: true
+
+volumes:
+  minio-data:
+    driver: local
+  sklearn-models:
+    driver: local
+  cnn-models:
+    driver: local
