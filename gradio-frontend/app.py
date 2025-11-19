@@ -1,4 +1,4 @@
-"""
+﻿"""
 Gradio Frontend Application
 Purpose: Unified interface for LLM, ML (Titanic), and CNN (CIFAR-10) services
 Author: Christian Gomez
@@ -23,9 +23,9 @@ ML_SERVICE_URL = os.getenv("SKLEARN_MODEL_URL", "http://sklearn-model:8000")
 CNN_SERVICE_URL = os.getenv("CNN_IMAGE_URL", "http://cnn-image:8000")
 
 # Para logs
-print(f"🔗 LLM Service: {LLM_SERVICE_URL}")
-print(f"🔗 ML Service: {ML_SERVICE_URL}")
-print(f"🔗 CNN Service: {CNN_SERVICE_URL}")
+print(f"[LINK] LLM Service: {LLM_SERVICE_URL}")
+print(f"[LINK] ML Service: {ML_SERVICE_URL}")
+print(f"[LINK] CNN Service: {CNN_SERVICE_URL}")
 
 
 def chat_with_llm(prompt, context, max_tokens, temperature):
@@ -49,7 +49,7 @@ def chat_with_llm(prompt, context, max_tokens, temperature):
             f"Model: {result.get('model', 'unknown')}\nTokens: {result.get('tokens_used', 0)}"
         )
     except Exception as e:
-        return f"❌ Error: {str(e)}", "Connection failed"
+        return f"[ERROR] Error: {str(e)}", "Connection failed"
 
 
 def train_ml():
@@ -63,11 +63,11 @@ def train_ml():
         result = response.json()
         
         return (
-            f"✅ Entrenamiento exitoso!\n\n{result.get('message', '')}",
+            f"[SUCCESS] Entrenamiento exitoso!\n\n{result.get('message', '')}",
             json.dumps(result.get('metrics', {}), indent=2)
         )
     except Exception as e:
-        return f"❌ Error: {str(e)}", "N/A"
+        return f"[ERROR] Error: {str(e)}", "N/A"
 
 
 def predict_ml(pclass, sex, age, sibsp, parch, fare, embarked):
@@ -91,7 +91,7 @@ def predict_ml(pclass, sex, age, sibsp, parch, fare, embarked):
         response.raise_for_status()
         result = response.json()
         
-        prediction_text = "✅ Sobrevivió" if result["prediction"] == 1 else "❌ No sobrevivió"
+        prediction_text = "[SUCCESS] Sobrevivió" if result["prediction"] == 1 else "[ERROR] No sobrevivió"
         
         return (
             prediction_text,
@@ -100,7 +100,7 @@ def predict_ml(pclass, sex, age, sibsp, parch, fare, embarked):
             result["model_version"]
         )
     except Exception as e:
-        return f"❌ Error: {str(e)}", "N/A", "N/A", "N/A"
+        return f"[ERROR] Error: {str(e)}", "N/A", "N/A", "N/A"
 
 
 def train_cnn():
@@ -115,18 +115,18 @@ def train_cnn():
         result = response.json()
         
         return (
-            f"✅ Entrenamiento CNN exitoso!\n\n{result.get('message', '')}",
+            f"[SUCCESS] Entrenamiento CNN exitoso!\n\n{result.get('message', '')}",
             json.dumps(result.get('metrics', {}), indent=2)
         )
     except Exception as e:
-        return f"❌ Error: {str(e)}", "N/A"
+        return f"[ERROR] Error: {str(e)}", "N/A"
 
 
 def predict_cnn(image):
     """Predict with CNN service"""
     try:
         if image is None:
-            return "⚠️ No se subió imagen", "N/A", "N/A", "N/A"
+            return "[WARNING] No se subió imagen", "N/A", "N/A", "N/A"
         
         # Convert numpy array to PIL Image
         if isinstance(image, np.ndarray):
@@ -153,13 +153,13 @@ def predict_cnn(image):
         result = response.json()
         
         return (
-            f"🏷️ {result.get('class_name', 'Unknown')}",
+            f"[TAG] {result.get('class_name', 'Unknown')}",
             f"{result.get('confidence', 0):.2%}",
             json.dumps({f"Clase {i}": f"{prob:.2%}" for i, prob in enumerate(result["probabilities"])}, indent=2),
             json.dumps(result.get("limitations", {}), indent=2)
         )
     except Exception as e:
-        return f"❌ Error: {str(e)}", "N/A", "N/A", "N/A"
+        return f"[ERROR] Error: {str(e)}", "N/A", "N/A", "N/A"
 
 
 # Create Gradio interface
@@ -169,7 +169,7 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
     
     with gr.Tabs():
         # === LLM Tab ===
-        with gr.TabItem("💬 LLM Chat"):
+        with gr.TabItem("[CHAT] LLM Chat"):
             gr.Markdown("### Conversación con Gemini 2.5 Flash")
             
             with gr.Row():
@@ -189,7 +189,7 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
                 max_tokens = gr.Slider(50, 500, 150, step=50, label="Máximos tokens")
                 temperature = gr.Slider(0.1, 1.0, 0.7, step=0.1, label="Temperatura")
             
-            chat_btn = gr.Button("🚀 Enviar", variant="primary")
+            chat_btn = gr.Button("[STARTING] Enviar", variant="primary")
             
             with gr.Row():
                 llm_output = gr.Textbox(label="Respuesta", lines=8, interactive=False)
@@ -202,11 +202,11 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
             )
         
         # === ML Titanic Tab ===
-        with gr.TabItem("📊 ML Titanic"):
+        with gr.TabItem("[METRICS] ML Titanic"):
             gr.Markdown("### Predicción de Supervivencia - Titanic Dataset")
             
             with gr.Tabs():
-                with gr.TabItem("🔮 Predicción"):
+                with gr.TabItem(" Predicción"):
                     with gr.Row():
                         pclass = gr.Slider(1, 3, 1, step=1, label="Clase (1=Primera, 3=Tercera)")
                         sex = gr.Radio([0, 1], label="Sexo (0=Masculino, 1=Femenino)", value=1)
@@ -221,7 +221,7 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
                     
                     embarked = gr.Radio([0, 1, 2], label="Puerto (0=Southampton, 1=Cherbourg, 2=Queenstown)", value=0)
                     
-                    predict_ml_btn = gr.Button("🔮 Predecir", variant="primary")
+                    predict_ml_btn = gr.Button(" Predecir", variant="primary")
                     
                     with gr.Row():
                         ml_prediction = gr.Textbox(label="Resultado", interactive=False)
@@ -236,11 +236,11 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
                         outputs=[ml_prediction, ml_confidence, ml_probabilities, ml_model_version]
                     )
                 
-                with gr.TabItem("🎓 Entrenamiento"):
+                with gr.TabItem(" Entrenamiento"):
                     gr.Markdown("### Entrenar modelo RandomForest con dataset Titanic")
-                    gr.Markdown("⚠️ Esto tomará aproximadamente 30-60 segundos")
+                    gr.Markdown("[WARNING] Esto tomará aproximadamente 30-60 segundos")
                     
-                    train_ml_btn = gr.Button("🎓 Entrenar Modelo", variant="primary")
+                    train_ml_btn = gr.Button(" Entrenar Modelo", variant="primary")
                     
                     ml_train_output = gr.Textbox(label="Estado del Entrenamiento", lines=5, interactive=False)
                     ml_train_metrics = gr.Textbox(label="Métricas", lines=5, interactive=False)
@@ -252,14 +252,14 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
                     )
         
         # === CNN Tab ===
-        with gr.TabItem("🖼️ CNN Visión"):
+        with gr.TabItem(" CNN Visión"):
             gr.Markdown("### Clasificación de Imágenes - CIFAR-10 (5 clases)")
             gr.Markdown("**Clases disponibles:** airplane, automobile, bird, cat, dog")
             
             with gr.Tabs():
-                with gr.TabItem("🔮 Predicción"):
+                with gr.TabItem(" Predicción"):
                     image_input = gr.Image(label="Subir Imagen (se redimensionará a 32x32)", type="pil")
-                    predict_cnn_btn = gr.Button("🔮 Clasificar", variant="primary")
+                    predict_cnn_btn = gr.Button(" Clasificar", variant="primary")
                     
                     with gr.Row():
                         cnn_prediction = gr.Textbox(label="Clase Predicha", interactive=False)
@@ -274,11 +274,11 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
                         outputs=[cnn_prediction, cnn_confidence, cnn_probabilities, cnn_limitations]
                     )
                 
-                with gr.TabItem("🎓 Entrenamiento"):
+                with gr.TabItem(" Entrenamiento"):
                     gr.Markdown("### Entrenar modelo CNN con CIFAR-10")
-                    gr.Markdown("⚠️ **ADVERTENCIA:** Esto tomará 5-10 minutos")
+                    gr.Markdown("[WARNING] **ADVERTENCIA:** Esto tomará 5-10 minutos")
                     
-                    train_cnn_btn = gr.Button("🎓 Entrenar CNN", variant="primary")
+                    train_cnn_btn = gr.Button(" Entrenar CNN", variant="primary")
                     
                     cnn_train_output = gr.Textbox(label="Estado del Entrenamiento", lines=5, interactive=False)
                     cnn_train_metrics = gr.Textbox(label="Métricas", lines=5, interactive=False)
@@ -294,10 +294,10 @@ with gr.Blocks(title="MLOps Pipeline Inteligente", theme=gr.themes.Soft()) as de
 
 
 if __name__ == "__main__":
-    print("🚀 Iniciando Gradio Frontend...")
-    print(f"🔗 LLM Service: {LLM_SERVICE_URL}")
-    print(f"🔗 ML Service: {ML_SERVICE_URL}")
-    print(f"🔗 CNN Service: {CNN_SERVICE_URL}")
+    print("[STARTING] Iniciando Gradio Frontend...")
+    print(f"[LINK] LLM Service: {LLM_SERVICE_URL}")
+    print(f"[LINK] ML Service: {ML_SERVICE_URL}")
+    print(f"[LINK] CNN Service: {CNN_SERVICE_URL}")
     
     demo.launch(
         server_name="0.0.0.0",

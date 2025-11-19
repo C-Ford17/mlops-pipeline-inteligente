@@ -1,4 +1,4 @@
-# run-tests.ps1
+﻿# run-tests.ps1
 # Script para ejecutar todos los tests localmente
 
 Write-Host "=== Running MLOps Pipeline Tests ===" -ForegroundColor Cyan
@@ -7,7 +7,7 @@ $services = @("llm-connector", "sklearn-model", "cnn-image", "gradio-frontend")
 $allPassed = $true
 
 foreach ($service in $services) {
-    Write-Host "`n🧪 Testing $service..." -ForegroundColor Yellow
+    Write-Host "`n Testing $service..." -ForegroundColor Yellow
     
     cd $service
     
@@ -22,19 +22,19 @@ foreach ($service in $services) {
     pytest tests/ -v --cov=app --cov-report=term-missing
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "❌ Tests failed for $service" -ForegroundColor Red
+        Write-Host "[ERROR] Tests failed for $service" -ForegroundColor Red
         $allPassed = $false
     } else {
-        Write-Host "✅ Tests passed for $service" -ForegroundColor Green
+        Write-Host "[SUCCESS] Tests passed for $service" -ForegroundColor Green
     }
     
     cd ..
 }
 
 if ($allPassed) {
-    Write-Host "`n✅ All tests passed!" -ForegroundColor Green
+    Write-Host "`n[SUCCESS] All tests passed!" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "`n❌ Some tests failed" -ForegroundColor Red
+    Write-Host "`n[ERROR] Some tests failed" -ForegroundColor Red
     exit 1
 }

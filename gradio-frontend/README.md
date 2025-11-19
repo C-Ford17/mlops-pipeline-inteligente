@@ -2,7 +2,7 @@
 
 Interfaz web unificada para interactuar con los servicios de Machine Learning e Inteligencia Artificial.
 
-## 🎯 Características
+## [TARGET] Características
 
 - **Interface unificada** para 3 servicios ML/AI
 - **Tabs organizadas** por funcionalidad
@@ -10,7 +10,7 @@ Interfaz web unificada para interactuar con los servicios de Machine Learning e 
 - **Validación de entradas** y manejo de errores
 - **Responsive design** con Gradio Themes
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 ┌─────────────────────────────────────┐
 │ Gradio Frontend (7860) │
@@ -23,7 +23,7 @@ Interfaz web unificada para interactuar con los servicios de Machine Learning e 
 └──────┘ └──────┘ └────────┘
 
 
-## 📦 Componentes
+##  Componentes
 
 ### **Tab 1: LLM Chat**
 - Conversación con Google Gemini 2.5 Flash
@@ -43,7 +43,7 @@ Interfaz web unificada para interactuar con los servicios de Machine Learning e 
 - 5 clases: airplane, automobile, bird, cat, dog
 - Upload de imágenes con preview
 
-## 🚀 Quick Start
+## [STARTING] Quick Start
 
 ### **Local (sin Docker)**
 
@@ -75,7 +75,7 @@ docker run -p 7860:7860
 gradio-frontend:latest
 
 
-## 🧪 Testing
+##  Testing
 
 Instalar dependencias de test
 pip install requirements
@@ -87,7 +87,7 @@ Con coverage
 pytest tests/ -v --cov=app --cov-report=html
 
 
-## 📁 Estructura
+##  Estructura
 
 
 gradio-frontend/
@@ -100,7 +100,7 @@ gradio-frontend/
 └── README.md # Este archivo
 
 
-## 🔧 Configuración
+##  Configuración
 
 ### Variables de Entorno
 
@@ -111,7 +111,7 @@ gradio-frontend/
 | `CNN_IMAGE_URL` | URL del servicio CNN | `http://cnn-image:8000` |
 | `GRADIO_SERVER_PORT` | Puerto del servidor | `7860` |
 
-## 📊 Funcionalidades por Tab
+## [METRICS] Funcionalidades por Tab
 
 ### LLM Chat
 - **Input:** Prompt + contexto opcional

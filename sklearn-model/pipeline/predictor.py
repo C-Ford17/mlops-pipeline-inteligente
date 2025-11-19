@@ -1,4 +1,4 @@
-import os
+﻿import os
 import logging
 import pickle
 import pandas as pd
@@ -25,21 +25,21 @@ class MLPredictor:
         
         # Verificar que el modelo existe ANTES de intentar cargar
         if not os.path.exists(model_path):
-            logger.error(f"❌ Modelo NO encontrado en {model_path}")
+            logger.error(f"[ERROR] Modelo NO encontrado en {model_path}")
             raise FileNotFoundError(f"Modelo no encontrado en {model_path}. Ejecute /train primero.")
         
         # Cargar pipeline
         with open(model_path, "rb") as f:
             self.pipeline = pickle.load(f)
-        logger.info(f"✅ Pipeline cargado correctamente")
+        logger.info(f"[SUCCESS] Pipeline cargado correctamente")
         
         # Cargar encoders (opcional - pueden no existir si el modelo no los necesita)
         if os.path.exists(encoder_path):
             with open(encoder_path, "rb") as f:
                 self.label_encoders = pickle.load(f)
-            logger.info(f"✅ Encoders cargados: {list(self.label_encoders.keys())}")
+            logger.info(f"[SUCCESS] Encoders cargados: {list(self.label_encoders.keys())}")
         else:
-            logger.info("ℹ️ No se encontraron encoders (no es necesario)")
+            logger.info("[INFO] No se encontraron encoders (no es necesario)")
        
     
     def validate_features(self, features: Dict[str, float]) -> None:
@@ -47,18 +47,18 @@ class MLPredictor:
         # Usar feature_columns, NO required_features (que está vacío)
         missing = [f for f in self.feature_columns if f not in features]
         if missing:
-            raise ValueError(f"❌ Features faltantes: {missing}")
+            raise ValueError(f"[ERROR] Features faltantes: {missing}")
         
         # Validar que todos los valores son numéricos
         for name, value in features.items():
             if not isinstance(value, (int, float)):
-                raise ValueError(f"❌ Feature '{name}' debe ser numérico, recibió {type(value)}")
+                raise ValueError(f"[ERROR] Feature '{name}' debe ser numérico, recibió {type(value)}")
     
     def predict(self, features: Dict[str, float]) -> Dict[str, Any]:
         """Realiza predicción con el modelo cargado"""
         # VERIFICAR QUE EL MODELO ESTÁ CARGADO
         if self.pipeline is None:
-            logger.error("🚨 Modelo no cargado. Intentando cargar...")
+            logger.error("[ALERT] Modelo no cargado. Intentando cargar...")
             try:
                 self.load_model()
             except FileNotFoundError as e:
@@ -79,7 +79,7 @@ class MLPredictor:
             prediction = self.pipeline.predict(X)[0]
             probabilities = self.pipeline.predict_proba(X)[0]
             
-            logger.info(f"✅ Predicción: {prediction}, confianza: {max(probabilities):.2%}")
+            logger.info(f"[SUCCESS] Predicción: {prediction}, confianza: {max(probabilities):.2%}")
             
             return {
                 "prediction": int(prediction),

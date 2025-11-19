@@ -1,4 +1,4 @@
-name: MLOps Pipeline CI/CD
+﻿name: MLOps Pipeline CI/CD
 
 on:
   push:
@@ -171,4 +171,4 @@ jobs:
           test -f infra/swarm-stack.yml || (echo "Missing swarm-stack.yml" && exit 1)
           test -f README.md || (echo "Missing README.md" && exit 1)
           
-          echo "✅ Project structure is valid"
+          echo "[SUCCESS] Project structure is valid"

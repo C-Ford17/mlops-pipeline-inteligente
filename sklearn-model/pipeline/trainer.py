@@ -1,4 +1,4 @@
-"""
+﻿"""
 ML Pipeline Trainer
 Purpose: Entrenamiento completo con preprocesamiento, evaluación y logging MLflow
 Author: Christian
@@ -50,10 +50,10 @@ class MLTrainer:
         data_path = "data/raw/titanic.csv"
         
         if os.path.exists(data_path):
-            logger.info(f"✅ Dataset encontrado en {data_path}")
+            logger.info(f"[SUCCESS] Dataset encontrado en {data_path}")
             return data_path
         
-        logger.info("📥 Descargando dataset Titanic...")
+        logger.info("[DOWNLOADING] Descargando dataset Titanic...")
         
         # Crear directorio si no existe
         os.makedirs("data/raw", exist_ok=True)
@@ -69,11 +69,11 @@ class MLTrainer:
             with open(data_path, 'wb') as f:
                 f.write(response.content)
             
-            logger.info(f"✅ Dataset descargado exitosamente a {data_path}")
+            logger.info(f"[SUCCESS] Dataset descargado exitosamente a {data_path}")
             return data_path
             
         except Exception as e:
-            logger.error(f"❌ Error descargando dataset: {e}")
+            logger.error(f"[ERROR] Error descargando dataset: {e}")
             raise
         
     def load_data(self) -> Tuple[pd.DataFrame, pd.Series]:
@@ -208,6 +208,6 @@ class MLTrainer:
             with open(encoder_path, "wb") as f:
                 pickle.dump(self.label_encoders, f)
             
-            logger.info(f"✅ Modelo entrenado y registrado en MLflow: {run.info.run_id}")
+            logger.info(f"[SUCCESS] Modelo entrenado y registrado en MLflow: {run.info.run_id}")
             
             return self.metrics

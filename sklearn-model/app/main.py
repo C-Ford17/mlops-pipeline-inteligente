@@ -1,4 +1,4 @@
-"""
+﻿"""
 ML Service API
 Purpose: FastAPI endpoints para entrenamiento y predicción
 Author: Christian Gomez
@@ -48,19 +48,19 @@ async def lifespan(app: FastAPI):
     """
     Lifespan manager para FastAPI (reemplaza on_event)
     """
-    logger.info("🚀 Sklearn Model Service iniciando...")
+    logger.info("[STARTING] Sklearn Model Service iniciando...")
     try:
         predictor.load_model()
-        logger.info("✅ Modelo cargado exitosamente")
+        logger.info("[SUCCESS] Modelo cargado exitosamente")
     except FileNotFoundError as e:
-        logger.warning(f"⚠️ {e}")
+        logger.warning(f"[WARNING] {e}")
     except Exception as e:
-        logger.error(f"❌ Error crítico al cargar modelo: {e}")
+        logger.error(f"[ERROR] Error crítico al cargar modelo: {e}")
         # NO hacer sys.exit() - permite que el contenedor siga corriendo
     
     yield  # Servicio está corriendo
     
-    logger.info("🛑 Sklearn Model Service apagando...")
+    logger.info(" Sklearn Model Service apagando...")
 
 # Crear app con lifespan
 app = FastAPI(title="Sklearn ML Service", version="1.0.0", lifespan=lifespan)

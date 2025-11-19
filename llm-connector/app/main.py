@@ -1,4 +1,4 @@
-"""
+﻿"""
 LLM Service API - CON MLFLOW LOGGING
 Purpose: Provides a REST API for interacting with LLM models with full MLflow tracking
 Author: Christian Gomez
@@ -67,7 +67,7 @@ def init_google_client():
         raise ValueError("GOOGLE_API_KEY no encontrada")
     
     client = genai.Client(api_key=api_key)
-    logger.info("✅ Google Gemini client inicializado")
+    logger.info("[SUCCESS] Google Gemini client inicializado")
 
 
 @app.on_event("startup")
@@ -75,7 +75,7 @@ async def startup_event():
     try:
         init_google_client()
     except Exception as e:
-        logger.error(f"❌ No se pudo inicializar Google: {e}")
+        logger.error(f"[ERROR] No se pudo inicializar Google: {e}")
 
 
 def log_to_mlflow(prompt: str, context: str, response: str, model: str, tokens_used: int, 
@@ -135,7 +135,7 @@ def log_to_mlflow(prompt: str, context: str, response: str, model: str, tokens_u
                 "interaction_type": "chat"
             })
             
-            logger.info(f"✅ Interacción loggeada en MLflow: {run.info.run_id}")
+            logger.info(f"[SUCCESS] Interacción loggeada en MLflow: {run.info.run_id}")
             
     except Exception as e:
         logger.error(f"Error loggeando a MLflow: {e}")
@@ -188,7 +188,7 @@ def query_google_with_retry(prompt: str, context: str, max_tokens: int, temperat
                     if (hasattr(candidate, 'content') and candidate.content and 
                         hasattr(candidate.content, 'parts') and candidate.content.parts):
                         text = candidate.content.parts[0].text
-                        logger.info("✅ Texto recuperado de candidates")
+                        logger.info("[SUCCESS] Texto recuperado de candidates")
                         response.text = text
             
             if not response.text:
@@ -324,7 +324,7 @@ async def chat(request: LLMRequest):
             temperature=request.temperature
         )
         
-        logger.info("✅ LLM response generated and logged to MLflow")
+        logger.info("[SUCCESS] LLM response generated and logged to MLflow")
         return result
         
     except Exception as e:

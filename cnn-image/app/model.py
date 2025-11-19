@@ -1,4 +1,4 @@
-"""
+﻿"""
 CNN Model with CIFAR-10 Dataset
 Purpose: Image classification with real CIFAR-10 data and custom filters
 Author: Christian Gomez
@@ -56,10 +56,10 @@ class CNNImageClassifier:
         data_dir = "data/raw/cifar-10-batches-py"
         
         if os.path.exists(data_dir) and os.path.isdir(data_dir):
-            logger.info(f"✅ CIFAR-10 encontrado en {data_dir}")
+            logger.info(f"[SUCCESS] CIFAR-10 encontrado en {data_dir}")
             return True
         
-        logger.info("📥 Descargando CIFAR-10 (esto puede tardar 1-2 minutos)...")
+        logger.info("[DOWNLOADING] Descargando CIFAR-10 (esto puede tardar 1-2 minutos)...")
         
         try:
             # Crear directorio
@@ -100,11 +100,11 @@ class CNNImageClassifier:
             with open(f"{data_dir}/batches.meta", 'wb') as f:
                 pickle.dump(meta, f)
             
-            logger.info(f"✅ CIFAR-10 descargado y guardado en {data_dir}")
+            logger.info(f"[SUCCESS] CIFAR-10 descargado y guardado en {data_dir}")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error descargando CIFAR-10: {e}")
+            logger.error(f"[ERROR] Error descargando CIFAR-10: {e}")
             raise
         
     def load_cifar10_data(self, num_samples: int = 5000) -> Tuple[np.ndarray, np.ndarray]:
@@ -247,7 +247,7 @@ class CNNImageClassifier:
             with open("model_info.json", "w") as f:
                 json.dump(model_info, f, indent=2)
             mlflow.log_artifact("model_info.json")
-            logger.info(f"✅ Modelo CNN registrado en MLflow: {run.info.run_id}")
+            logger.info(f"[SUCCESS] Modelo CNN registrado en MLflow: {run.info.run_id}")
             
             return metrics
     

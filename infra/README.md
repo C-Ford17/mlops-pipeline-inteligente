@@ -2,7 +2,7 @@
 
 Configuración de infraestructura Docker para orquestación con Compose y Swarm.
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 
 ┌──────────────────────────────────────────────────┐
@@ -23,7 +23,7 @@ Configuración de infraestructura Docker para orquestación con Compose y Swarm.
 └─────────┘
 
 
-## 📦 Servicios
+##  Servicios
 
 | Servicio | Puerto | Descripción |
 |----------|--------|-------------|
@@ -34,7 +34,7 @@ Configuración de infraestructura Docker para orquestación con Compose y Swarm.
 | **mlflow-server** | 5000 | MLflow Tracking UI |
 | **minio** | 9000/9001 | S3 Storage + Console |
 
-## 🚀 Quick Start
+## [STARTING] Quick Start
 
 ### **Opción 1: Docker Compose (Recomendado para desarrollo)**
 
@@ -80,7 +80,7 @@ docker stack services mlops
 docker service logs mlops_gradio-frontend -f
 
 
-## 📁 Estructura
+##  Estructura
 
 
 infra/
@@ -96,7 +96,7 @@ infra/
 └── README.md # Este archivo
 
 
-## 🔧 Scripts
+##  Scripts
 
 ### **build-local.ps1**
 Build de todas las imágenes localmente.
@@ -130,7 +130,7 @@ Remove del stack
 .\remove-stack.ps1
 
 
-## 🌐 Variables de Entorno
+##  Variables de Entorno
 
 **Archivo `.env`:**
 
@@ -149,7 +149,7 @@ AWS_SECRET_ACCESS_KEY=minioadmin
 AWS_DEFAULT_REGION=us-east-1
 
 
-## 📊 Volúmenes
+## [METRICS] Volúmenes
 
 ### Docker Compose:
 
@@ -162,7 +162,7 @@ cnn-models: # Modelos CNN
 ### Docker Swarm:
 Los volúmenes son compartidos entre replicas del servicio.
 
-## 🔒 Networking
+##  Networking
 
 ### Compose:
 - **Red bridge:** Comunicación interna entre servicios
@@ -173,7 +173,7 @@ Los volúmenes son compartidos entre replicas del servicio.
 - **Routing mesh:** Load balancing automático
 - **Service discovery:** Resolución DNS por nombre de servicio
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Servicios no inician
 
@@ -219,7 +219,7 @@ Ver exit code
 docker inspect CONTAINER_ID
 
 
-## 📊 Monitoring
+## [METRICS] Monitoring
 
 ### Docker Compose:
 
@@ -249,7 +249,7 @@ Escalar servicios
 docker service scale mlops_llm-connector=3
 
 
-## 🔄 Actualizar Servicios
+##  Actualizar Servicios
 
 ### Compose:
 
@@ -269,7 +269,7 @@ Force update (sin cambio de imagen)
 docker service update --force mlops_gradio-frontend
 
 
-## 🛑 Detener Servicios
+##  Detener Servicios
 
 ### Compose:
 
@@ -292,7 +292,7 @@ Salir de Swarm mode
 docker swarm leave --force
 
 
-## 📈 Performance Tips
+##  Performance Tips
 
 1. **Recursos:**
    - Min 8GB RAM para todos los servicios
@@ -330,7 +330,7 @@ external: true
    - No exponer puertos innecesarios
    - Usar redes internas para comunicación entre servicios
 
-## 📝 Autor
+##  Autor
 
 Christian Gomez - Proyecto Final MLOps
 

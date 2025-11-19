@@ -2,7 +2,7 @@
 
 Servicio de clasificación de imágenes usando CNN con dataset CIFAR-10 (5 clases).
 
-## 🎯 Features
+## [TARGET] Features
 
 - **Arquitectura CNN** con 3 capas convolucionales
 - **Filtros personalizados:** Smoothing, Edge Detection, Sharpness
@@ -11,7 +11,7 @@ Servicio de clasificación de imágenes usando CNN con dataset CIFAR-10 (5 clase
 - **API REST** con FastAPI
 - **5 clases:** airplane, automobile, bird, cat, dog
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 Input Image (32x32 RGB)
 │
@@ -32,7 +32,7 @@ Input Image (32x32 RGB)
 Output (5 classes)
 
 
-## 📊 Dataset
+## [METRICS] Dataset
 
 - **CIFAR-10:** 60,000 imágenes 32x32 RGB
 - **5 clases seleccionadas:**
@@ -43,7 +43,7 @@ Output (5 classes)
   - 4: dog (mapeado desde CIFAR-10 class 5)
 - **Descarga automática** vía Keras en primer entrenamiento
 
-## 🚀 API Endpoints
+## [STARTING] API Endpoints
 
 ### **POST /predict**
 Clasifica una imagen.
@@ -104,7 +104,7 @@ Información del servicio.
 curl http://localhost:8002/info
 
 
-## 🔧 Setup
+##  Setup
 
 ### **Local**
 
@@ -135,7 +135,7 @@ docker run -p 8002:8000
 cnn-image:latest
 
 
-## 🧪 Testing
+##  Testing
 
 
 Instalar dependencias
@@ -152,7 +152,7 @@ Con coverage
 pytest tests/ -v --cov=app --cov-report=html
 
 
-## 📁 Estructura
+##  Estructura
 
 cnn-image/
 ├── app/
@@ -171,7 +171,7 @@ cnn-image/
 └── README.md
 
 
-## 🎓 Entrenamiento
+##  Entrenamiento
 
 ### Primera vez (descarga CIFAR-10):
 
@@ -215,7 +215,7 @@ kernel = [[ 0, -1, 0],
 [ 0, -1, 0]]
 
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Error: CIFAR-10 no encontrado
 
@@ -239,13 +239,13 @@ Normal en CPU, el modelo usa TensorFlow con CPU
 Los warnings de CUDA son esperados
 
 
-## 🚀 Performance Tips
+## [STARTING] Performance Tips
 
 1. **Primera ejecución:** Descarga CIFAR-10 (~2 min)
 2. **GPU:** Mejora ~10x velocidad (requiere CUDA)
 3. **Batch size:** Aumentar si tienes más RAM
 4. **Epochs:** Más epochs = mejor accuracy (pero más lento)
 
-## 📝 Autor
+##  Autor
 
 Christian Gomez - Proyecto Final MLOps
