@@ -89,6 +89,9 @@ mlops-pipeline-inteligente/
 └── .github/workflows/      # CI/CD
 \`\`\`
 
+## Video presentando
+https://drive.google.com/file/d/19OR7y6u8vxvgnWzC2s4OAAA3RomeLfwU/view?usp=drive_link
+
 ## Autor
 
 Christian Gomez - Proyecto Final MLOps
